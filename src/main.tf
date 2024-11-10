@@ -5,3 +5,9 @@ data "google_project" "this" {
 provider "google" {
   project = var.project_id
 }
+
+resource "google_firestore_database" "this" {
+  name        = "(default)"
+  location_id = "europe-west1"
+  type        = "FIRESTORE_NATIVE"
+}
