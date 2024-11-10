@@ -19,7 +19,7 @@ fi
 WI_POOL_NAME="github"
 
 # login interactively using your browser
-#gcloud auth login
+gcloud auth login
 
 PROJECT_ID=$(gcloud projects list --filter="name:'$PROJECT_DISPLAY_NAME'" --format="value(projectId)")
 
@@ -69,10 +69,10 @@ else
   echo "Workload Identity Pool found with name: $WI_POOL_NAME (ID: $WI_POOL_ID)"
 fi
 
-echo "$string" | tr xyz _
-
-OIDC_NAME="test"
+# Can be anything 
+OIDC_NAME="mytest"
 echo OIDC would be $OIDC_NAME
+github_org=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
 
 WI_OIDC_PROVIDER=$(gcloud iam workload-identity-pools providers list \
   --project="${PROJECT_ID}" \
@@ -87,7 +87,7 @@ if [[ -z "$WI_OIDC_PROVIDER" ]]; then
     --project="${PROJECT_ID}" \
     --location="global" \
     --workload-identity-pool="$WI_POOL_NAME" \
-    --display-name="GitHub OIDC provider - prod" \
+    --display-name="GitHub OIDC provider" \
     --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner" \
     --attribute-condition="assertion.repository_owner == '${github_org}'" \
     --issuer-uri="https://token.actions.githubusercontent.com"
