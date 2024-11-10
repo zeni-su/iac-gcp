@@ -139,13 +139,21 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - id: 'auth'
+      name: 'Authenticate to GCP'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        workload_identity_provider: ${{ secrets.GCP_WORKLOAD_PROVIDER }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_ID }}
+
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    #- name: Terraform Init
-    #  run: terraform init -backend-config="bucket=${{ secrets.GCP_BACKEND_BUCKET }}" -backend-config="prefix=${{ secrets.GCP_BACKEND_PREFIX }}"
+    - name: Terraform Init
+      run: terraform init -backend-config="bucket=${{ secrets.GCP_BACKEND_BUCKET }}" -backend-config="prefix=${{ secrets.GCP_BACKEND_PREFIX }}"
 
     # Download saved plan from artifacts  
     - name: Download Terraform Plan
