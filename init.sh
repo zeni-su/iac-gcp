@@ -69,7 +69,10 @@ else
   echo "Workload Identity Pool found with name: $WI_POOL_NAME (ID: $WI_POOL_ID)"
 fi
 
-OIDC_NAME=${GITHUB_REPOSITORY#$GITHUB_USER/}
+# Can be anything 
+OIDC_NAME="mytest"
+echo OIDC would be $OIDC_NAME
+github_org=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
 
 WI_OIDC_PROVIDER=$(gcloud iam workload-identity-pools providers list \
   --project="${PROJECT_ID}" \
@@ -86,7 +89,7 @@ if [[ -z "$WI_OIDC_PROVIDER" ]]; then
     --workload-identity-pool="$WI_POOL_NAME" \
     --display-name="GitHub OIDC provider" \
     --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner" \
-    --attribute-condition="assertion.repository_owner == '${GITHUB_USER}'" \
+    --attribute-condition="assertion.repository_owner == '${github_org}'" \
     --issuer-uri="https://token.actions.githubusercontent.com"
     WI_OIDC_PROVIDER=$(gcloud iam workload-identity-pools providers describe "$OIDC_NAME" \
       --project="${PROJECT_ID}" \
@@ -119,9 +122,17 @@ GITHUB_TOKEN_CACHE=$GITHUB_TOKEN
 export GITHUB_TOKEN=""
 gh auth login
 
-gh secret set GCP_WORKLOAD_PROVIDER --body "$WI_OIDC_PROVIDER"
-gh secret set GCP_PROJECT_ID --body "$PROJECT_ID"
-gh secret set GCP_SERVICE_ACCOUNT_ID --body "$SERVICE_USER_MAIL"
+gh secret set GCP_WORKLOAD_PROVIDER --body "$WI_OIDC_PROVIDER" --repo $GITHUB_REPOSITORY
+gh secret set GCP_PROJECT_ID --body "$PROJECT_ID" --repo $GITHUB_REPOSITORY
+gh secret set GCP_SERVICE_ACCOUNT_ID --body "$SERVICE_USER_MAIL" --repo $GITHUB_REPOSITORY
+
+# optionally, a storage bucket can be created as well:
+bucket_name="${PROJECT_NAME}_terraform"
+bucket_prefix="terraform/state"
+gcloud storage buckets create gs://${bucket_name} --location="US-EAST1" --project="$PROJECT_ID"
+# then, set secrets for github
+gh secret set GCP_BACKEND_BUCKET --body "$bucket_name" --repo $GITHUB_REPOSITORY
+gh secret set GCP_BACKEND_PREFIX --body "$bucket_prefix" --repo $GITHUB_REPOSITORY
 
 # restore auth token!
 export GITHUB_TOKEN=$GITHUB_TOKEN_CACHE
