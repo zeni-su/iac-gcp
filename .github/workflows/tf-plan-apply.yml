@@ -23,7 +23,7 @@ env:
 defaults:
   run:
     shell: bash
-    working-directory: ${{ env.terraform_directory }}
+    working-directory: ./src
 
 jobs:
   terraform-plan:
