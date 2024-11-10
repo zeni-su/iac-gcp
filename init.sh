@@ -122,17 +122,17 @@ GITHUB_TOKEN_CACHE=$GITHUB_TOKEN
 export GITHUB_TOKEN=""
 gh auth login
 
-gh secret set GCP_WORKLOAD_PROVIDER --body "$WI_OIDC_PROVIDER"
-gh secret set GCP_PROJECT_ID --body "$PROJECT_ID"
-gh secret set GCP_SERVICE_ACCOUNT_ID --body "$SERVICE_USER_MAIL"
+gh secret set GCP_WORKLOAD_PROVIDER --body "$WI_OIDC_PROVIDER" --repo $GITHUB_REPOSITORY
+gh secret set GCP_PROJECT_ID --body "$PROJECT_ID" --repo $GITHUB_REPOSITORY
+gh secret set GCP_SERVICE_ACCOUNT_ID --body "$SERVICE_USER_MAIL" --repo $GITHUB_REPOSITORY
 
 # optionally, a storage bucket can be created as well:
 bucket_name="${PROJECT_NAME}_terraform"
 bucket_prefix="terraform/state"
 gcloud storage buckets create gs://${bucket_name} --location="US-EAST1" --project="$PROJECT_ID"
 # then, set secrets for github
-gh secret set GCP_BACKEND_BUCKET --body "$bucket_name"
-gh secret set GCP_BACKEND_PREFIX --body "$bucket_prefix"
+gh secret set GCP_BACKEND_BUCKET --body "$bucket_name" --repo $GITHUB_REPOSITORY
+gh secret set GCP_BACKEND_PREFIX --body "$bucket_prefix" --repo $GITHUB_REPOSITORY
 
 # restore auth token!
 export GITHUB_TOKEN=$GITHUB_TOKEN_CACHE
