@@ -20,6 +20,11 @@ permissions:
 env:
   terraform_directory: ./src
 
+defaults:
+  run:
+    shell: bash
+    working-directory: ${{ env.terraform_directory }}
+
 jobs:
   terraform-plan:
     name: "Terraform Plan"
@@ -29,10 +34,6 @@ jobs:
       ARM_SKIP_PROVIDER_REGISTRATION: true
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ env.terraform_directory }}
 
     steps:
       - name: Checkout
