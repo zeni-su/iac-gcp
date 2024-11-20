@@ -20,13 +20,16 @@ resource "google_firestore_database" "this" {
   ]
 }
 
-resource "google_project_service" "identity" {
-  project = data.google_project.this.project_id
-  service = "iap.googleapis.com"
-}
+# Only "Organization Internal" brands can be created programmatically via API.
+# Source: https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/iap_brand
 
-resource "google_iap_brand" "this" {
-  support_email     = "support@example.com"
-  application_title = "zeni-su"
-  project           = google_project_service.identity.project
-}
+#resource "google_project_service" "identity" {
+#  project = data.google_project.this.project_id
+#  service = "iap.googleapis.com"
+#}
+
+#resource "google_iap_brand" "this" {
+#  support_email     = "support@example.com"
+#  application_title = "zeni-su"
+#  project           = google_project_service.identity.project
+#}
