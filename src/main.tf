@@ -19,3 +19,14 @@ resource "google_firestore_database" "this" {
     google_project_service.firestore
   ]
 }
+
+resource "google_project_service" "identity" {
+  project = data.google_project.this.project_id
+  service = "iap.googleapis.com"
+}
+
+resource "google_iap_brand" "this" {
+  support_email     = "support@example.com"
+  application_title = "zeni-su"
+  project           = google_project_service.identity.project
+}
